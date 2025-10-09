@@ -1,0 +1,18 @@
+# Bitnami helm values
+global:
+  security:
+    allowInsecureImages: true
+architecture: standalone
+master:
+  resourcesPreset: "nano"
+  persistence:
+    enabled: false
+  kind: Deployment
+auth:
+  enabled: false
+  sentinel: false
+  password: ""
+  usePasswordFiles: false
+  usePasswordFileFromSecret: false
+sentinel:
+  enabled: false
