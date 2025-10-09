@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-stack
+  namespace: redis
+  labels:
+    app: redis-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-stack
+  template:
+    metadata:
+      labels:
+        app: redis-stack
+    spec:
+      containers:
+      - name: redis-stack
+        image: redis/redis-stack:7.4.0-v1
+        env:
+          - name: REDIS_ARGS
+            value: "--maxmemory 512mb --maxmemory-policy allkeys-lru"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 6379
+          name: redis-stack
+        - containerPort: 8001
+          name: redis-insight
+        resources:
+          requests:
+            memory: 256Mi 
+            cpu: 200m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-stack
+  namespace: redis
+  labels:
+    app: redis-stack
+spec:
+  ports:
+  - port: 6379
+    name: redis-stack
+    targetPort: 6379
+  - port: 8001
+    name: redis-insight
+    targetPort: 8001
+  type: ClusterIP
+  selector:
+    app: redis-stack
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: redis-insight
+  namespace: redis
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`redis.${CLUSTERNAME}.${DOMAINNAME}`)
+      services:
+        - name: redis-stack
+          kind: Service
+          port: 8001
+  tls: {}
