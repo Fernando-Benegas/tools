@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netshoot
+  namespace: default
+  labels:
+    app: netshoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netshoot
+  template:
+    metadata:
+      labels:
+        app: netshoot
+    spec:
+      containers:
+        - name: netshoot
+          image: nicolaka/netshoot:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              echo "Netshoot pod running. Use 'kubectl exec' to run commands.";
+              tail -f /dev/null
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN", "NET_RAW"]
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: netshoot
+  namespace: default
+spec:
+  selector:
+    app: netshoot
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
