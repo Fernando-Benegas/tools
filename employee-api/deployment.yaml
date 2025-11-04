@@ -1,0 +1,269 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: employee-data
+  namespace: apps
+data:
+  api.json: |
+    {
+      "employees": {
+        "1": { "firstName": "John", "lastName": "Doe", "role": "pilot", "homeAirport": "RIC" },
+        "2": { "firstName": "Jane", "lastName": "Doe", "role": "engineer", "homeAirport": "CDG" },
+        "3": { "firstName": "John", "lastName": "Smith", "role": "attendant", "homeAirport": "DTW" }
+      }
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-app-latency
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: employee-app-latency
+  template:
+    metadata:
+      labels:
+        app: employee-app-latency
+    spec:
+      containers:
+        - name: api
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "32Mi"
+              cpu: "50m"
+          image: newa/api-server:v2.0.1
+          args: ["-data", "/api/api.json", "-openapi", "/public/openapi.yaml", "-latency", "400ms"]
+          env:
+            - name: COLLECTORADDR
+              value: "http://otel-collector-opentelemetry-collector.observability.svc.cluster.local:4318"
+            - name: COLLECTORPATH
+              value: "/v1/traces"
+            - name: ENV
+              value: "dev"          
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: api-data
+              mountPath: /api
+            - name: openapi
+              mountPath: /public
+      volumes:
+        - name: api-data
+          configMap:
+            name: employee-data
+        - name: openapi
+          configMap:
+            name: employee-apispec
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-app-latency
+  namespace: apps
+  labels:
+    app: employee-app-latency
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      name: api
+  selector:
+    app: employee-app-latency
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: employee-apispec
+  namespace: apps
+data:
+  openapi.yaml: |
+    openapi: "3.0.0"
+    info:
+      version: 1.0.0
+      title: Employee
+      description: Traefik Airlines Employee API
+      contact:
+        name: Traefik Airlines Support
+        url: 'https://traefik.io/'
+      license:
+        name: Apache 2.0
+        url: 'https://spdx.org/licenses/Apache-2.0.html'
+    servers:
+      - url: https://api.traefik.localhost
+    paths:
+      /employees:
+        get:
+          summary: Get employees
+          operationId: getEmployees
+          tags:
+            - employees
+          parameters:
+            - name: limit
+              in: query
+              description: How many items to return at one time (max 100)
+              required: false
+              schema:
+                type: integer
+                maximum: 100
+                format: int32
+          responses:
+            '200':
+              description: A paged array of employees
+              headers:
+                x-next:
+                  description: A link to the next page of responses
+                  schema:
+                    type: string
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Employees"
+            default:
+              description: unexpected error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Error"
+        post:
+          summary: Create a employee
+          operationId: createEmployee
+          tags:
+            - employees
+          responses:
+            '201':
+              description: Null response
+            default:
+              description: unexpected error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Error"
+      /employees/{employeeId}:
+        get:
+          summary: Info for a specific employee
+          operationId: showEmployeeById
+          tags:
+            - employees
+          parameters:
+            - name: employeeId
+              in: path
+              required: true
+              description: The id of the employee
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Expected response to a valid request
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Employee"
+            default:
+              description: unexpected error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Error"
+        put:
+          summary: Update an employee
+          operationId: updateEmployee
+          tags:
+            - employees
+          parameters:
+            - name: employeeId
+              in: path
+              required: true
+              description: The id of the employee
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Null response
+            default:
+              description: unexpected error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Error"
+        delete:
+          summary: Delete a employee
+          operationId: deleteEmployee
+          tags:
+            - employees
+          parameters:
+            - name: employeeId
+              in: path
+              required: true
+              description: The id of the employee
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Null response
+            default:
+              description: unexpected error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Error"
+    components:
+      schemas:
+        Employee:
+          type: object
+          required:
+            - id
+            - firstName
+            - lastName
+          properties:
+            id:
+              type: integer
+              format: int64
+            firstName:
+              type: string
+            lastName:
+              type: string
+            role:
+              type: string
+            homeAirport:
+              type: string
+        Employees:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/Employee"
+        Error:
+          type: object
+          required:
+            - message
+          properties:
+            message:
+              type: string
+
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: api-ingress-employees
+  namespace: apps
+  annotations:
+    hub.traefik.io/api: employee-api
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`employee.tutorial`) && PathPrefix(`/employees`)
+      services:
+        - name: employee-app-latency
+          port: 3000
