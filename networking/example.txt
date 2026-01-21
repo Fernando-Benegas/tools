@@ -1,0 +1,8 @@
+--hub.providers.nutanixPrismCentral
+--hub.providers.nutanixPrismCentral.endpoint=https://YOUR_PRISM_ENDPOINT
+--hub.providers.nutanixPrismCentral.apiKey=xxxx
+--hub.providers.nutanixPrismCentral.allowedVPCs[0].uuid=UUID_OF_THE_VPC
+--hub.providers.nutanixPrismCentral.allowedVPCs[1].uuid=UUID_OF_THE_VPC
+--hub.providers.nutanixPrismCentral.tls.insecureSkipVerify=true
+
+curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="--disable traefik" sh -
