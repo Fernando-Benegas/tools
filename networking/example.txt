@@ -6,3 +6,5 @@
 --hub.providers.nutanixPrismCentral.tls.insecureSkipVerify=true
 
 curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="--disable traefik" sh -
+
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
