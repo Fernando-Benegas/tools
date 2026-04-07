@@ -1,0 +1,12 @@
+apiVersion: hub.traefik.io/v1alpha1
+kind: APICatalogItem
+metadata:
+  name: httpbin-catalog
+  namespace: apps
+spec:
+  groups:
+    - admin
+  apis:
+    - name: httpbin-api
+  apiPlan:
+    name: httpbin-api-basic-plan
