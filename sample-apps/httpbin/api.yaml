@@ -1,0 +1,11 @@
+apiVersion: hub.traefik.io/v1alpha1
+kind: API
+metadata:
+  name: httpbin-api 
+  namespace: apps
+spec:
+  openApiSpec:
+    url: https://raw.githubusercontent.com/Fernando-Benegas/tools/refs/heads/main/sample-apps/httpbin/oas.yaml 
+    override:
+      servers:
+        - url: http://httpbin.tutorial
