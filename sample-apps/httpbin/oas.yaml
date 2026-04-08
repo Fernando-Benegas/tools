@@ -1,127 +1,118 @@
 openapi: "3.0.3"
 info:
-  version: "1.0.0"
+  version: "1.1.0"
   title: httpbin API
-  description: HTTP Request & Response Service for testing HTTP clients.
+  description: |
+    A complete HTTP request & response testing service.
+    Supports methods, auth, encoding, streaming, redirects, cookies, and more.
   contact:
-    name: Postman Labs
-    url: "https://github.com/postmanlabs/httpbin"
+    name: httpbin
+    url: "https://httpbin.org"
   license:
     name: MIT
     url: "https://opensource.org/licenses/MIT"
 
 servers:
   - url: https://httpbin.org
-    description: Production server
 
 tags:
   - name: methods
-    description: HTTP method testing
   - name: inspection
-    description: Request inspection endpoints
   - name: auth
-    description: Authentication endpoints
   - name: status
-    description: Status and error simulation
+  - name: encoding
+  - name: redirects
+  - name: cookies
+  - name: cache
+  - name: formats
+  - name: misc
 
 paths:
 
   /get:
     get:
-      summary: Perform a GET request
-      operationId: getRequest
       tags: [methods]
-      parameters:
-        - $ref: '#/components/parameters/GenericQueryParam'
+      summary: GET request
+      operationId: get
       responses:
         "200":
-          description: Successful GET request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HttpBinResponse'
-        "500":
-          $ref: '#/components/responses/serverError'
+          $ref: "#/components/responses/JsonResponse"
 
   /post:
     post:
-      summary: Perform a POST request
-      operationId: postRequest
       tags: [methods]
+      summary: POST request
+      operationId: post
       requestBody:
-        $ref: '#/components/requestBodies/GenericBody'
+        $ref: "#/components/requestBodies/GenericBody"
       responses:
         "200":
-          description: Successful POST request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HttpBinResponse'
+          $ref: "#/components/responses/JsonResponse"
 
   /put:
     put:
-      summary: Perform a PUT request
-      operationId: putRequest
       tags: [methods]
+      summary: PUT request
+      operationId: put
       requestBody:
-        $ref: '#/components/requestBodies/GenericBody'
+        $ref: "#/components/requestBodies/GenericBody"
       responses:
         "200":
-          description: Successful PUT request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HttpBinResponse'
+          $ref: "#/components/responses/JsonResponse"
+
+  /patch:
+    patch:
+      tags: [methods]
+      summary: PATCH request
+      operationId: patch
+      requestBody:
+        $ref: "#/components/requestBodies/GenericBody"
+      responses:
+        "200":
+          $ref: "#/components/responses/JsonResponse"
 
   /delete:
     delete:
-      summary: Perform a DELETE request
-      operationId: deleteRequest
       tags: [methods]
+      summary: DELETE request
+      operationId: delete
       responses:
         "200":
-          description: Successful DELETE request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HttpBinResponse'
+          $ref: "#/components/responses/JsonResponse"
 
   /anything:
     get:
-      summary: Echo GET request
+      tags: [inspection]
       operationId: anythingGet
-      tags: [inspection]
       responses:
         "200":
-          $ref: '#/components/responses/HttpBinOK'
+          $ref: "#/components/responses/JsonResponse"
 
-    post:
-      summary: Echo POST request
-      operationId: anythingPost
+  /anything/{path}:
+    get:
       tags: [inspection]
-      requestBody:
-        $ref: '#/components/requestBodies/GenericBody'
+      operationId: anythingWithPath
+      parameters:
+        - $ref: "#/components/parameters/PathParam"
       responses:
         "200":
-          $ref: '#/components/responses/HttpBinOK'
+          $ref: "#/components/responses/JsonResponse"
 
   /headers:
     get:
-      summary: Return request headers
-      operationId: getHeaders
       tags: [inspection]
+      operationId: headers
       responses:
         "200":
-          $ref: '#/components/responses/HttpBinOK'
+          $ref: "#/components/responses/JsonResponse"
 
   /ip:
     get:
-      summary: Return origin IP
-      operationId: getIP
       tags: [inspection]
+      operationId: ip
       responses:
         "200":
-          description: Client IP
+          description: IP response
           content:
             application/json:
               schema:
@@ -130,14 +121,21 @@ paths:
                   origin:
                     type: string
 
-  /uuid:
+  /user-agent:
     get:
-      summary: Generate UUID
-      operationId: getUUID
       tags: [inspection]
+      operationId: userAgent
       responses:
         "200":
-          description: UUID response
+          $ref: "#/components/responses/JsonResponse"
+
+  /uuid:
+    get:
+      tags: [inspection]
+      operationId: uuid
+      responses:
+        "200":
+          description: UUID
           content:
             application/json:
               schema:
@@ -146,83 +144,252 @@ paths:
                   uuid:
                     type: string
 
-  /delay/{seconds}:
+  /status/{code}:
     get:
-      summary: Delayed response
-      operationId: delayResponse
       tags: [status]
+      operationId: status
       parameters:
-        - name: seconds
+        - $ref: "#/components/parameters/StatusCode"
+      responses:
+        "200":
+          description: Status returned
+        "400":
+          $ref: "#/components/responses/badRequest"
+
+  /delay/{n}:
+    get:
+      tags: [status]
+      operationId: delay
+      parameters:
+        - name: n
           in: path
           required: true
           schema:
             type: integer
       responses:
         "200":
-          $ref: '#/components/responses/HttpBinOK'
+          $ref: "#/components/responses/JsonResponse"
 
-  /status/{code}:
+  /redirect/{n}:
     get:
-      summary: Return custom status code
-      operationId: statusCode
-      tags: [status]
+      tags: [redirects]
+      operationId: redirect
       parameters:
-        - $ref: '#/components/parameters/StatusCodeParam'
+        - name: n
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "302":
+          description: Redirect
+
+  /redirect-to:
+    get:
+      tags: [redirects]
+      operationId: redirectTo
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect
+
+  /relative-redirect/{n}:
+    get:
+      tags: [redirects]
+      operationId: relativeRedirect
+      parameters:
+        - name: n
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "302":
+          description: Redirect
+
+  /gzip:
+    get:
+      tags: [encoding]
+      operationId: gzip
       responses:
         "200":
-          $ref: '#/components/responses/success'
-        "400":
-          $ref: '#/components/responses/badRequest'
-        "404":
-          $ref: '#/components/responses/notFound'
+          description: Gzip response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpBinResponse"
 
-  /basic-auth/{user}/{passwd}:
+  /deflate:
     get:
-      summary: Basic authentication
-      operationId: basicAuth
-      tags: [auth]
+      tags: [encoding]
+      operationId: deflate
+      responses:
+        "200":
+          description: Deflate response
+
+  /base64/{value}:
+    get:
+      tags: [encoding]
+      operationId: base64Decode
       parameters:
-        - name: user
+        - name: value
           in: path
           required: true
           schema:
             type: string
-        - name: passwd
+      responses:
+        "200":
+          description: Decoded string
+
+  /stream-bytes/{n}:
+    get:
+      tags: [misc]
+      operationId: streamBytes
+      parameters:
+        - name: n
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Binary stream
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /response-headers:
+    get:
+      tags: [misc]
+      operationId: responseHeaders
+      parameters:
+        - name: freeform
+          in: query
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/JsonResponse"
+
+  /cookies:
+    get:
+      tags: [cookies]
+      operationId: getCookies
+      responses:
+        "200":
+          $ref: "#/components/responses/JsonResponse"
+
+  /cookies/set:
+    get:
+      tags: [cookies]
+      operationId: setCookies
+      parameters:
+        - name: key
+          in: query
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Cookie set
+
+  /cache:
+    get:
+      tags: [cache]
+      operationId: cache
+      responses:
+        "200":
+          description: Cache response
+        "304":
+          description: Not modified
+
+  /etag/{etag}:
+    get:
+      tags: [cache]
+      operationId: etag
+      parameters:
+        - name: etag
           in: path
           required: true
           schema:
             type: string
-      security:
-        - basicAuth: []
       responses:
         "200":
-          description: Auth success
-        "401":
-          $ref: '#/components/responses/unauthorized'
+          description: OK
+        "304":
+          description: Not modified
+
+  /html:
+    get:
+      tags: [formats]
+      operationId: html
+      responses:
+        "200":
+          description: HTML response
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /xml:
+    get:
+      tags: [formats]
+      operationId: xml
+      responses:
+        "200":
+          description: XML response
+          content:
+            application/xml:
+              schema:
+                type: string
+
+  /json:
+    get:
+      tags: [formats]
+      operationId: json
+      responses:
+        "200":
+          $ref: "#/components/responses/JsonResponse"
+
+  /image/png:
+    get:
+      tags: [formats]
+      operationId: imagePng
+      responses:
+        "200":
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
 
 components:
 
   parameters:
-    GenericQueryParam:
-      name: any
-      in: query
-      schema:
-        type: string
-      required: false
-      description: Arbitrary query parameter
-
-    StatusCodeParam:
+    StatusCode:
       name: code
       in: path
       required: true
       schema:
         type: integer
-      description: HTTP status code
+
+    PathParam:
+      name: path
+      in: path
+      required: true
+      schema:
+        type: string
 
   requestBodies:
     GenericBody:
-      description: Generic request body
-      required: false
       content:
         application/json:
           schema:
@@ -232,27 +399,15 @@ components:
             type: object
 
   responses:
-    HttpBinOK:
-      description: Standard httpbin response
+    JsonResponse:
+      description: Standard JSON response
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/HttpBinResponse'
-
-    success:
-      description: Successful operation
+            $ref: "#/components/schemas/HttpBinResponse"
 
     badRequest:
       description: Bad request
-
-    unauthorized:
-      description: Unauthorized
-
-    notFound:
-      description: Not found
-
-    serverError:
-      description: Internal server error
 
   schemas:
     HttpBinResponse:
@@ -270,16 +425,16 @@ components:
           type: string
         url:
           type: string
-        json:
-          type: object
-          nullable: true
         data:
           type: string
-        files:
+        json:
+          nullable: true
+          type: object
+        form:
           type: object
           additionalProperties:
             type: string
-        form:
+        files:
           type: object
           additionalProperties:
             type: string
