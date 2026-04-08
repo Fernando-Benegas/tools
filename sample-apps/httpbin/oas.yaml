@@ -1,159 +1,289 @@
-openapi: 3.0.3
+openapi: "3.0.3"
 info:
-  title: httpbin API
-  description: A simple HTTP request & response service for testing HTTP libraries.
   version: "1.0.0"
+  title: httpbin API
+  description: HTTP Request & Response Service for testing HTTP clients.
+  contact:
+    name: Postman Labs
+    url: "https://github.com/postmanlabs/httpbin"
+  license:
+    name: MIT
+    url: "https://opensource.org/licenses/MIT"
 
 servers:
   - url: https://httpbin.org
-    description: Official httpbin server
+    description: Production server
 
 tags:
-  - name: HTTP Methods
-  - name: Auth
-  - name: Status
+  - name: methods
+    description: HTTP method testing
+  - name: inspection
+    description: Request inspection endpoints
+  - name: auth
+    description: Authentication endpoints
+  - name: status
+    description: Status and error simulation
 
 paths:
 
   /get:
     get:
-      tags: [HTTP Methods]
-      summary: Returns GET request data
-      description: Returns query parameters, headers, and origin.
+      summary: Perform a GET request
+      operationId: getRequest
+      tags: [methods]
       parameters:
-        - in: query
-          name: any
-          schema:
-            type: string
-          description: Arbitrary query parameter
+        - $ref: '#/components/parameters/GenericQueryParam'
       responses:
         "200":
-          description: Successful response
+          description: Successful GET request
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/HttpBinResponse'
+        "500":
+          $ref: '#/components/responses/serverError'
 
   /post:
     post:
-      tags: [HTTP Methods]
-      summary: Returns POST request data
+      summary: Perform a POST request
+      operationId: postRequest
+      tags: [methods]
       requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
+        $ref: '#/components/requestBodies/GenericBody'
       responses:
         "200":
-          description: Successful response
+          description: Successful POST request
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/HttpBinResponse'
 
   /put:
     put:
-      tags: [HTTP Methods]
-      summary: Returns PUT request data
+      summary: Perform a PUT request
+      operationId: putRequest
+      tags: [methods]
       requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
+        $ref: '#/components/requestBodies/GenericBody'
       responses:
         "200":
-          description: Successful response
+          description: Successful PUT request
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/HttpBinResponse'
 
   /delete:
     delete:
-      tags: [HTTP Methods]
-      summary: Returns DELETE request data
+      summary: Perform a DELETE request
+      operationId: deleteRequest
+      tags: [methods]
       responses:
         "200":
-          description: Successful response
+          description: Successful DELETE request
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/HttpBinResponse'
 
   /anything:
     get:
-      tags: [HTTP Methods]
-      summary: Returns anything passed in request
+      summary: Echo GET request
+      operationId: anythingGet
+      tags: [inspection]
       responses:
         "200":
-          description: Echo response
-          content:
-            application/json:
-              schema:
-                type: object
-    post:
-      tags: [HTTP Methods]
-      summary: Accepts and returns any data
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        "200":
-          description: Echo response
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/responses/HttpBinOK'
 
-  /status/{code}:
+    post:
+      summary: Echo POST request
+      operationId: anythingPost
+      tags: [inspection]
+      requestBody:
+        $ref: '#/components/requestBodies/GenericBody'
+      responses:
+        "200":
+          $ref: '#/components/responses/HttpBinOK'
+
+  /headers:
     get:
-      tags: [Status]
-      summary: Returns given HTTP status code
+      summary: Return request headers
+      operationId: getHeaders
+      tags: [inspection]
+      responses:
+        "200":
+          $ref: '#/components/responses/HttpBinOK'
+
+  /ip:
+    get:
+      summary: Return origin IP
+      operationId: getIP
+      tags: [inspection]
+      responses:
+        "200":
+          description: Client IP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  origin:
+                    type: string
+
+  /uuid:
+    get:
+      summary: Generate UUID
+      operationId: getUUID
+      tags: [inspection]
+      responses:
+        "200":
+          description: UUID response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+
+  /delay/{seconds}:
+    get:
+      summary: Delayed response
+      operationId: delayResponse
+      tags: [status]
       parameters:
-        - in: path
-          name: code
+        - name: seconds
+          in: path
           required: true
           schema:
             type: integer
-          description: HTTP status code to return
       responses:
         "200":
-          description: Status returned successfully
+          $ref: '#/components/responses/HttpBinOK'
+
+  /status/{code}:
+    get:
+      summary: Return custom status code
+      operationId: statusCode
+      tags: [status]
+      parameters:
+        - $ref: '#/components/parameters/StatusCodeParam'
+      responses:
+        "200":
+          $ref: '#/components/responses/success'
         "400":
-          description: Bad request
+          $ref: '#/components/responses/badRequest'
         "404":
-          description: Not found
+          $ref: '#/components/responses/notFound'
 
   /basic-auth/{user}/{passwd}:
     get:
-      tags: [Auth]
-      summary: Basic authentication endpoint
+      summary: Basic authentication
+      operationId: basicAuth
+      tags: [auth]
       parameters:
-        - in: path
-          name: user
+        - name: user
+          in: path
           required: true
           schema:
             type: string
-        - in: path
-          name: passwd
+        - name: passwd
+          in: path
           required: true
           schema:
             type: string
+      security:
+        - basicAuth: []
       responses:
         "200":
-          description: Authenticated
+          description: Auth success
         "401":
-          description: Unauthorized
+          $ref: '#/components/responses/unauthorized'
 
 components:
+
+  parameters:
+    GenericQueryParam:
+      name: any
+      in: query
+      schema:
+        type: string
+      required: false
+      description: Arbitrary query parameter
+
+    StatusCodeParam:
+      name: code
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: HTTP status code
+
+  requestBodies:
+    GenericBody:
+      description: Generic request body
+      required: false
+      content:
+        application/json:
+          schema:
+            type: object
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+
+  responses:
+    HttpBinOK:
+      description: Standard httpbin response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpBinResponse'
+
+    success:
+      description: Successful operation
+
+    badRequest:
+      description: Bad request
+
+    unauthorized:
+      description: Unauthorized
+
+    notFound:
+      description: Not found
+
+    serverError:
+      description: Internal server error
+
+  schemas:
+    HttpBinResponse:
+      type: object
+      properties:
+        args:
+          type: object
+          additionalProperties:
+            type: string
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        origin:
+          type: string
+        url:
+          type: string
+        json:
+          type: object
+          nullable: true
+        data:
+          type: string
+        files:
+          type: object
+          additionalProperties:
+            type: string
+        form:
+          type: object
+          additionalProperties:
+            type: string
+
   securitySchemes:
     basicAuth:
       type: http
