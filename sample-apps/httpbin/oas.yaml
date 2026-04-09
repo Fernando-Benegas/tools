@@ -3,11 +3,9 @@ info:
   version: "1.1.0"
   title: httpbin API
   description: |
-    # 🚀 Overview
+    # Overview
 
     ## Welcome to **The HTTPbin API**. This is a custom introduction using Markdown with multiple formatting examples.
-
-    ---
 
     ### Features
     - Feature A
