@@ -3,8 +3,27 @@ info:
   version: "1.1.0"
   title: httpbin API
   description: |
-    A complete HTTP request & response testing service.
-    Supports methods, auth, encoding, streaming, redirects, cookies, and more.
+
+  description: |
+    # Overview
+
+    Welcome to **The Weather API**. This is a custom introduction using Markdown.
+
+    ## Features
+    - Feature A
+    - Feature B
+    - Feature C
+
+    ## Checklist
+    - [ ] 1 feature
+    - [ ] 2 feauture
+    - [ ] 3 feature
+    - [ ] 4 feature
+    - [ ] 5 feature
+
+    ## Contact
+    If you have any questions, contact us at fernando.benegas@traefik.io
+
   contact:
     name: httpbin
     url: "https://httpbin.org"
