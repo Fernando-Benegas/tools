@@ -5,33 +5,33 @@ info:
   description: |
     # Overview
 
-    ## Welcome to **The HTTPbin API**. This is a custom introduction using Markdown with multiple formatting examples.
+    ## Welcome to **The HTTPbin API**. This is a custom page using Markdown for [HTTPbin API](https://httpbin.org)
 
-    ### Features
+    ### Features:
     - Feature A
     - Feature B
     - Feature C
-      - Sub-feature C1
-      - Sub-feature C2
+      - Sub-feature 1
+      - Sub-feature 2
 
     ---
 
-    ### Checklist
-    - [ ] 1 feature
-    - [x] 2 feature (completed)
-    - [ ] 3 feature
-    - [ ] 4 feature
-    - [ ] 5 feature
+    ### Checklist:
+    - [ ] 1 Feature
+    - [x] 2 Feature (check)
+      - [x] Sub feature 1
+      - [x] sub feature 2
+    - [ ] 3 Feature
+    
+    ---
+
+    ### Links:
+    - Httpbin official site: [HTTPbin](https://httpbin.org)
+    - Inline link example: <https://httbin.org>
 
     ---
 
-    ### Links
-    - Visit the official site: [HTTPbin](https://httpbin.org)
-    - Inline link example: <https://example.com>
-
-    ---
-
-    ### Image
+    ### Image:
     ![Sample Image](https://traefik.io/favicon.png)
 
     ---
@@ -46,53 +46,41 @@ info:
     ---
 
     ### Code Block
-    ```python
-    def hello_world():
-        print("Hello, world!")
+    ```yaml
+    test:
+      test-2:
+        boolean: true
+    
     ```
 
     ---
 
-    ### Table
+    ### Table & icons
     | Feature   | Status   | Notes        |
     |-----------|----------|--------------|
     | Feature A | ✅ Done  | Working well |
-    | Feature B | ❌ Issue | Needs fix    |
-    | Feature C | ⏳ WIP   | In progress  |
+    | Feature B | ❌ Issue | Not working  |
+    | Feature C | ⏳ WIP   | In progres   |
 
     ---
 
-    ### Blockquote
+    ### Blockquote:
     > This is a blockquote example.
     > It can span multiple lines.
 
     ---
 
-    ### Ordered List
+    ### Ordered List:
     1. First item
     2. Second item
     3. Third item
 
     ---
 
-    ### Task List Nested
-    - [ ] Main task
-      - [ ] Sub task 1
-      - [x] Sub task 2
-
-    ---
-
-    ### HTML Support
+    ### HTML :
     <div style="color: blue;">
       This is inline HTML inside Markdown.
     </div>
-
-    ---
-
-    ### Footnote
-    Here is a statement with a footnote.[^1]
-
-    [^1]: This is the footnote explanation.
 
     ---
 
