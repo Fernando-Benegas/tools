@@ -3,24 +3,103 @@ info:
   version: "1.1.0"
   title: httpbin API
   description: |
-    # Overview
+    # 🚀 Overview
 
-    Welcome to **The Weather API**. This is a custom introduction using Markdown.
+    ## Welcome to **The HTTPbin API**. This is a custom introduction using Markdown with multiple formatting examples.
 
-    ## Features
+    ---
+
+    ### Features
     - Feature A
     - Feature B
     - Feature C
+      - Sub-feature C1
+      - Sub-feature C2
 
-    ## Checklist
+    ---
+
+    ### Checklist
     - [ ] 1 feature
-    - [ ] 2 feauture
+    - [x] 2 feature (completed)
     - [ ] 3 feature
     - [ ] 4 feature
     - [ ] 5 feature
 
-    ## Contact
-    If you have any questions, contact us at fernando.benegas@traefik.io
+    ---
+
+    ### Links
+    - Visit the official site: [HTTPbin](https://httpbin.org)
+    - Inline link example: <https://example.com>
+
+    ---
+
+    ### Image
+    ![Sample Image](https://traefik.io/favicon.png)
+
+    ---
+
+    ### Text Formatting
+    - **Bold text**
+    - *Italic text*
+    - ***Bold + Italic***
+    - ~~Strikethrough~~
+    - `Inline code`
+
+    ---
+
+    ### Code Block
+    ```python
+    def hello_world():
+        print("Hello, world!")
+    ```
+
+    ---
+
+    ### Table
+    | Feature   | Status   | Notes        |
+    |-----------|----------|--------------|
+    | Feature A | ✅ Done  | Working well |
+    | Feature B | ❌ Issue | Needs fix    |
+    | Feature C | ⏳ WIP   | In progress  |
+
+    ---
+
+    ### Blockquote
+    > This is a blockquote example.
+    > It can span multiple lines.
+
+    ---
+
+    ### Ordered List
+    1. First item
+    2. Second item
+    3. Third item
+
+    ---
+
+    ### Task List Nested
+    - [ ] Main task
+      - [ ] Sub task 1
+      - [x] Sub task 2
+
+    ---
+
+    ### HTML Support
+    <div style="color: blue;">
+      This is inline HTML inside Markdown.
+    </div>
+
+    ---
+
+    ### Footnote
+    Here is a statement with a footnote.[^1]
+
+    [^1]: This is the footnote explanation.
+
+    ---
+
+    ### Contact
+    If you have any questions, contact us at <fernando.benegas@traefik.io>
 
   contact:
     name: httpbin
