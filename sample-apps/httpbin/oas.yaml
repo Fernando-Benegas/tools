@@ -7,6 +7,7 @@ info:
 
     ## Welcome to **The HTTPbin API**. This is a custom page using Markdown for [HTTPbin API](https://httpbin.org)
 
+    
     ### Features:
     - Feature A
     - Feature B
@@ -85,7 +86,10 @@ info:
     ---
 
     ### Contact
-    If you have any questions, contact us at <fernando.benegas@traefik.io>
+    If you have any questions, contact us at <fernando.benegas@traefik.io
+
+    #### Header 4
+    ##### Header 5
 
   contact:
     name: httpbin
