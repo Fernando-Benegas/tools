@@ -1,0 +1,61 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: httpbin-stripprefix
+  namespace: apps
+spec:
+  stripPrefix:
+    prefixes:
+      - /get
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpbin
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin
+  template:
+    metadata:
+      labels:
+        app: httpbin
+    spec:
+      containers:
+      - name: httpbin
+        image: kennethreitz/httpbin
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin
+  namespace: apps
+spec:
+  selector:
+    app: httpbin
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: httpbin
+  namespace: apps
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`httpbin.traefik`)
+    kind: Rule
+    services:
+    - name: httpbin
+      port: 80
+    middlewares:
+    - name: httpbin-stripprefix
